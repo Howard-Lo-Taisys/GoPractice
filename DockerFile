@@ -1,0 +1,11 @@
+FROM golang:1.17
+WORKDIR /app/src/
+COPY . .
+RUN go mod tidy \
+    && CGO_ENABLED=0 GOOS=linux go build -o /app/appbin /app/src/main.go
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=0 /app/appbin .
+CMD ["./appbin"]
